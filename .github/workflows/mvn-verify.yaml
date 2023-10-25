@@ -5,6 +5,7 @@ on:
 jobs:
   job-mvn-verify:
     name: 'Maven Verify'
+    permissions: {}
     runs-on: 'ubuntu-latest'
     steps:
       - id: 'checkout'
