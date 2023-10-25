@@ -17,6 +17,8 @@ jobs:
           cache: 'maven'
           distribution: 'temurin'
           java-version: '11'
+          mvn-toolchain-id: 'Temurin 11'
+          mvn-toolchain-vendor: 'openjdk' # see ../../pom.xml
       - id: 'mvn-verify'
         name: 'Step: Maven Verify'
         run: 'mvn -B -Dorg.slf4j.simpleLogger.defaultLogLevel=info verify'
