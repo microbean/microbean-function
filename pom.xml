@@ -25,6 +25,14 @@
     <tag>HEAD</tag>
   </scm>
 
+  <distributionManagement>
+    <site>
+      <id>Github Pages</id>
+      <name>microBean™ Function Site</name>
+      <url>https://microbean.github.io/microbean-function/</url>
+    </site>
+  </distributionManagement>
+
   <dependencies>
 
 
@@ -155,7 +163,7 @@
             </propertyExpansion>
           </configuration>
         </plugin>
-          
+
         <plugin>
           <artifactId>maven-javadoc-plugin</artifactId>
           <configuration>
