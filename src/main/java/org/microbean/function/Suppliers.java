@@ -55,7 +55,7 @@ public final class Suppliers {
     return new Supplier<>() {
       private Supplier<R> d = this::compute; // deliberately not final; no need for volatile; construction semantics
       private boolean initialized; // deliberately not final; no need for volatile; always accessed under lock
-      private synchronized final R compute() {
+      private final synchronized R compute() {
         if (!this.initialized) {
           final R r = s.get();
           this.d = () -> r; // memoization
@@ -87,7 +87,7 @@ public final class Suppliers {
    *
    * @exception NullPointerException if either argument is {@code null}
    *
-   * @see memoize(Supplier, long)
+   * @see #memoize(Supplier, long)
    */
   public static final <R> Supplier<R> memoize(final Supplier<? extends R> s, final Duration d) {
     return memoize(s, d.toNanos());
@@ -116,8 +116,8 @@ public final class Suppliers {
       private volatile R r;
       @Override
       public final R get() {
-        long expiresAt = this.expiresAt; // volatile read
-        long now = System.nanoTime();
+        final long expiresAt = this.expiresAt; // volatile read
+        final long now = System.nanoTime();
         if (expiresAt == 0L || now - expiresAt >= 0L) {
           // first time or expiration
           synchronized (this) {
