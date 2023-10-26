@@ -1,6 +1,7 @@
 name: 'Action: Maven Verify'
 run-name: 'Action Run: Maven Verify'
 on:
+  - 'pull_request'
   - 'push'
 jobs:
   job-mvn-verify:
