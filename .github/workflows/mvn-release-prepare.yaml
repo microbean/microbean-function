@@ -1,0 +1,26 @@
+name: 'Action: Maven Release Prepare'
+run-name: 'Action Run: Maven Release Prepare'
+on:
+  - 'workflow-dispatch'
+jobs:
+  job-mvn-release-prepare:
+    name: 'Maven Release Prepare'
+    permissions: {}
+    runs-on: 'ubuntu-latest'
+    steps:
+      - id: 'checkout'
+        name: 'Step: Checkout'
+        uses: 'actions/checkout@v4'
+      - id: 'setup-java'
+        name: 'Step: Set Up Java and Maven'
+        uses: 'actions/setup-java@v3'
+        with:
+          cache: 'maven'
+          distribution: 'temurin'
+          java-version: '11'
+          mvn-toolchain-id: 'Temurin 11'
+          mvn-toolchain-vendor: 'openjdk' # see ../../pom.xml
+      - id: 'mvn-release-prepare'
+        name: 'Step: Maven Release Prepare'
+        run: 'echo "Releasing"'
+
