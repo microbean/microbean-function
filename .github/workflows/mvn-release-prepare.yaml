@@ -1,7 +1,7 @@
 name: 'Action: Maven Release Prepare'
 run-name: 'Action Run: Maven Release Prepare'
 on:
-  - 'workflow-dispatch'
+  - 'workflow_dispatch'
 jobs:
   job-mvn-release-prepare:
     name: 'Maven Release Prepare'
