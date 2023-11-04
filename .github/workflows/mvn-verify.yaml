@@ -1,17 +1,19 @@
-name: 'Action: Maven Verify'
-run-name: 'Action Run: Maven Verify'
+name: 'Workflow: Maven Verify'
+run-name: 'Workflow Run: Maven Verify'
 on:
   - 'pull_request'
   - 'push'
 jobs:
   job-mvn-verify:
-    name: 'Maven Verify'
+    name: 'Job: Maven Verify'
     permissions: {}
     runs-on: 'ubuntu-latest'
     steps:
       - id: 'checkout'
         name: 'Step: Checkout'
         uses: 'actions/checkout@v4'
+        with:
+          fetch-depth: 0
       - id: 'setup-java'
         name: 'Step: Set Up Java and Maven'
         uses: 'actions/setup-java@v3'

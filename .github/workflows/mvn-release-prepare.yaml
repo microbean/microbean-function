@@ -1,16 +1,18 @@
-name: 'Action: Maven Release Prepare'
-run-name: 'Action Run: Maven Release Prepare'
+name: 'Workflow: Maven Release Prepare'
+run-name: 'Workflow Run: Maven Release Prepare'
 on:
   - 'workflow_dispatch'
 jobs:
   job-mvn-release-prepare:
-    name: 'Maven Release Prepare'
+    name: 'Job: Maven Release Prepare'
     permissions: {}
     runs-on: 'ubuntu-latest'
     steps:
       - id: 'checkout'
         name: 'Step: Checkout'
         uses: 'actions/checkout@v4'
+        with:
+          fetch-depth: 0
       - id: 'setup-java'
         name: 'Step: Set Up Java and Maven'
         uses: 'actions/setup-java@v3'
@@ -21,6 +23,7 @@ jobs:
           mvn-toolchain-id: 'Temurin 11'
           mvn-toolchain-vendor: 'openjdk' # see ../../pom.xml
       - id: 'mvn-release-prepare'
+        env:
+          MARCO: "{{secrets.MARCO}}"
         name: 'Step: Maven Release Prepare'
-        run: 'echo "Releasing"'
-
+        run: 'echo "Releasing; MARCO is ${MARCO}"'
