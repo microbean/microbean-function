@@ -26,4 +26,6 @@ jobs:
         env:
           MARCO: "${{secrets.MARCO}}"
         name: 'Step: Maven Release Prepare'
-        run: 'echo "Releasing; MARCO is ${MARCO}"'
+        run: |
+          echo "Releasing; MARCO is ${MARCO}"
+          cat .m2/settings.xml
