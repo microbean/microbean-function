@@ -24,6 +24,6 @@ jobs:
           mvn-toolchain-vendor: 'openjdk' # see ../../pom.xml
       - id: 'mvn-release-prepare'
         env:
-          MARCO: "{{secrets.MARCO}}"
+          MARCO: "${{secrets.MARCO}}"
         name: 'Step: Maven Release Prepare'
         run: 'echo "Releasing; MARCO is ${MARCO}"'
