@@ -28,4 +28,6 @@ jobs:
         name: 'Step: Maven Release Prepare'
         run: |
           echo "Releasing; MARCO is ${MARCO}"
+          echo "Github actor: ${GITHUB_ACTOR}"
+          echo "Github token: ${GITHUB_TOKEN}"
           cat ~/.m2/settings.xml
