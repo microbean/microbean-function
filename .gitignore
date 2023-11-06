@@ -4,5 +4,9 @@
 *~
 nbactions.xml
 nb-configuration.xml
+pom.xml.next
+pom.xml.releaseBackup
+pom.xml.tag
+release.properties
 src/site/markdown/*.html
 target/
