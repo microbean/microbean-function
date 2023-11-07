@@ -27,3 +27,4 @@ jobs:
         name: 'Step: Maven Release Prepare'
         run: |
           mvn --batch-mode release:prepare -DdryRun=true
+          cat ~/.m2/settings.xml
