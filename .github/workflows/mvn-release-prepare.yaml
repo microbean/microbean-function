@@ -37,8 +37,9 @@ jobs:
       - id: 'mvn-release-prepare-perform'
         name: 'Step: Maven Release: Prepare and Perform'
         env:
+          DRY_RUN: '${{ inputs.dryRun }}'
           GPG_PASSPHRASE: '${{ secrets.GPG_PASSPHRASE }}'
           SONATYPE_OSSRH_PASSWORD: '${{ secrets.SONATYPE_OSSRH_PASSWORD }}'
           SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
         run: |
-          mvn --batch-mode release:prepare release:perform -DdryRun=true
+          mvn --batch-mode release:prepare release:perform -DdryRun="${DRY_RUN}"
