@@ -1,7 +1,7 @@
 name: 'Workflow: Maven Release: Prepare and Perform'
 run-name: 'Workflow Run: Maven Release: Prepare and Perform'
 on:
-  - 'workflow_dispatch'
+  workflow_dispatch:
     inputs:
       dryRun:
         default: true
