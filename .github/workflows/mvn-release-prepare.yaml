@@ -44,5 +44,6 @@ jobs:
         run: |
           git config user.email 'ci@microbean.org'
           git config user.name 'microbean'
+          echo 'pinentry-mode loopback' >> ~/.gnupg/gpg.conf
           gpg --version
           GPG_TTY=$(tty) mvn --batch-mode release:prepare release:perform -DdryRun="${DRY_RUN}" -Dscm.url="scm:git:${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
