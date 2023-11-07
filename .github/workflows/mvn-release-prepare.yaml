@@ -7,6 +7,10 @@ on:
         default: true
         description: 'Dry run?'
         type: 'boolean'
+      mvnDebug:
+        default: false
+        description: 'Debug?'
+        type: 'boolean'
 jobs:
   job-mvn-release-prepare-perform:
     name: 'Job: Maven Release: Prepare and Perform'
@@ -43,9 +47,10 @@ jobs:
         env:
           DRY_RUN: '${{ inputs.dryRun }}'
           GPG_PASSPHRASE: '${{ secrets.GPG_PASSPHRASE }}'
+          MVN_DEBUG: '${{ inputs.mvnDebug && '-X' || '' }}'
           SONATYPE_OSSRH_PASSWORD: '${{ secrets.SONATYPE_OSSRH_PASSWORD }}'
           SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
         run: |
           git config user.email 'ci@microbean.org'
           git config user.name 'microbean'
-          mvn --batch-mode release:prepare release:perform -DdryRun="${DRY_RUN}" -Dscm.url="scm:git:${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
+          mvn ${MVN_DEBUG} --batch-mode release:prepare release:perform -DdryRun="${DRY_RUN}" -Dscm.url="scm:git:${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
