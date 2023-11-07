@@ -20,11 +20,21 @@ jobs:
         with:
           cache: 'maven'
           distribution: 'temurin'
+          gpg-passphrase: GPG_PASSPHRASE
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
           java-version: '11'
           mvn-toolchain-id: 'Temurin 11'
           mvn-toolchain-vendor: 'openjdk' # see ../../pom.xml
+          server-id: 'sonatype-oss-repository-hosting' # see https://github.com/microbean/microbean-parent/blob/master/pom.xml#L38
+          server-password: SONATYPE_OSSRH_PASSWORD
+          server-username: SONATYPE_OSSRH_USERNAME
       - id: 'mvn-release-prepare'
         name: 'Step: Maven Release Prepare'
+        env:
+          GPG_PASSPHRASE: '${{ secrets.GPG_PASSPHRASE }}'
+          SONATYPE_OSSRH_PASSWORD: '${{ secrets.SONATYPE_OSSRH_PASSWORD }}'
+          SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
         run: |
+          env | sort
           mvn --batch-mode release:prepare -DdryRun=true
           cat ~/.m2/settings.xml
