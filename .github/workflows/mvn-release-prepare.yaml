@@ -2,6 +2,11 @@ name: 'Workflow: Maven Release: Prepare and Perform'
 run-name: 'Workflow Run: Maven Release: Prepare and Perform'
 on:
   - 'workflow_dispatch'
+    inputs:
+      dryRun:
+        default: true
+        description: 'Dry run?'
+        type: 'boolean'
 jobs:
   job-mvn-release-prepare-perform:
     name: 'Job: Maven Release: Prepare and Perform'
