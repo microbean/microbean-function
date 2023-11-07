@@ -19,8 +19,8 @@
   <url>https://microbean.github.io/microbean-function</url>
 
   <scm>
-    <connection>scm:git:git@github.com:microbean/microbean-function.git</connection>
-    <developerConnection>scm:git:git@github.com:microbean/microbean-function.git</developerConnection>
+    <connection>${scm.url}</connection>
+    <developerConnection>${scm.url}</developerConnection>
     <url>https://github.com/microbean/microbean-function/</url>
     <tag>HEAD</tag>
   </scm>
@@ -211,6 +211,8 @@
 
     <!-- maven-release-plugin properties; see http://maven.apache.org/maven-release/maven-release-plugin/ -->
     <goals>deploy,post-site,scm-publish:publish-scm</goals>
+
+    <scm.url>scm:git:git@github.com:microbean/microbean-function.git</scm.url>
 
     <!-- maven-scm-publish-plugin properties;
          see https://maven.apache.org/plugins/maven-scm-publish-plugin/publish-scm-mojo.html -->
