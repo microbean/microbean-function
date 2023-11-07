@@ -44,4 +44,4 @@ jobs:
         run: |
           git config user.email 'ci@microbean.org'
           git config user.name 'microbean'
-          mvn --batch-mode release:prepare release:perform -DdryRun="${DRY_RUN}"
+          mvn --batch-mode release:prepare release:perform -DdryRun="${DRY_RUN}" -Darguments="-DscmDeveloperConnection=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
