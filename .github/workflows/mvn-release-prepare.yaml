@@ -47,7 +47,7 @@ jobs:
         env:
           DRY_RUN: '${{ inputs.dryRun }}'
           GPG_PASSPHRASE: '${{ secrets.GPG_PASSPHRASE }}'
-          MVN_DEBUG: '${{ inputs.mvnDebug && '-X' || '' }}'
+          MVN_DEBUG: ${{ inputs.mvnDebug && '-X' || '' }}
           SONATYPE_OSSRH_PASSWORD: '${{ secrets.SONATYPE_OSSRH_PASSWORD }}'
           SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
         run: |
