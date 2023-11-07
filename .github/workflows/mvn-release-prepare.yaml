@@ -6,7 +6,7 @@ jobs:
   job-mvn-release-prepare-perform:
     name: 'Job: Maven Release: Prepare and Perform'
     permissions:
-      - contents: 'read'
+      contents: 'read'
     runs-on: 'ubuntu-latest'
     steps:
       - id: 'checkout'
