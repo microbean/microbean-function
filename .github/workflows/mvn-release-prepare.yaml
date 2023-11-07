@@ -34,6 +34,10 @@ jobs:
           server-id: 'sonatype-oss-repository-hosting' # see https://github.com/microbean/microbean-parent/blob/master/pom.xml#L38
           server-password: 'SONATYPE_OSSRH_PASSWORD'
           server-username: 'SONATYPE_OSSRH_USERNAME'
+      - id: 'setup-gpg'
+        name: 'Step: Set Up GPG'
+        run: |
+          echo 'pinentry-mode loopback' >> ~/.gnupg/gpg.conf
       - id: 'mvn-release-prepare-perform'
         name: 'Step: Maven Release: Prepare and Perform'
         env:
@@ -44,6 +48,4 @@ jobs:
         run: |
           git config user.email 'ci@microbean.org'
           git config user.name 'microbean'
-          echo 'pinentry-mode loopback' >> ~/.gnupg/gpg.conf
-          gpg --version
-          GPG_TTY=$(tty) mvn --batch-mode release:prepare release:perform -DdryRun="${DRY_RUN}" -Dscm.url="scm:git:${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
+          mvn --batch-mode release:prepare release:perform -DdryRun="${DRY_RUN}" -Dscm.url="scm:git:${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
