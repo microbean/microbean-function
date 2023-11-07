@@ -51,6 +51,6 @@ jobs:
           SONATYPE_OSSRH_PASSWORD: '${{ secrets.SONATYPE_OSSRH_PASSWORD }}'
           SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
         run: |
-          git config user.email 'ci@microbean.org'
-          git config user.name 'microbean'
+          git config --global user.email 'ci@microbean.org'
+          git config --global user.name 'microbean'
           mvn ${MVN_DEBUG} --batch-mode release:prepare release:perform -DdryRun="${DRY_RUN}" -Dscm.url="scm:git:${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git" -Darguments="-Dscmpublish.pubScmUrl=scm:git:${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
