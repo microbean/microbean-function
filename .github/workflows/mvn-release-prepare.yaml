@@ -42,4 +42,6 @@ jobs:
           SONATYPE_OSSRH_PASSWORD: '${{ secrets.SONATYPE_OSSRH_PASSWORD }}'
           SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
         run: |
+          git config user.email 'ci@microbean.org'
+          git config user.name 'microbean'
           mvn --batch-mode release:prepare release:perform -DdryRun="${DRY_RUN}"
