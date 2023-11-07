@@ -194,10 +194,19 @@
         <plugin>
           <groupId>org.sonatype.plugins</groupId>
           <artifactId>nexus-staging-maven-plugin</artifactId>
+          <version>1.6.13</version>
           <configuration>
             <!-- <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl> -->
             <nexusUrl>https://oss.sonatype.org/</nexusUrl>
           </configuration>
+          <dependencies>
+            <!-- https://issues.sonatype.org/browse/NEXUS-26993?focusedCommentId=1098136&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-1098136 -->
+            <dependency>
+              <groupId>com.thoughtworks.xstream</groupId>
+              <artifactId>xstream</artifactId>
+              <version>1.4.20</version>
+            </dependency>
+          </dependencies>
         </plugin>
 
       </plugins>
