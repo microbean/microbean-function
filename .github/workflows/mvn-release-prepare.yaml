@@ -69,3 +69,5 @@ jobs:
           git config --global user.email 'ci@microbean.org'
           git config --global user.name 'microbean'
           mvn ${MVN_DEBUG} --batch-mode release:prepare release:perform -DdryRun="${DRY_RUN}" -Dscm.url="${SCM_GIT_HTTPS_URL}" -Darguments="-Dscmpublish.pubScmUrl=${SCM_GIT_HTTPS_URL}"
+          exit_code=$?
+          echo "mvn exit code: ${exit_code}"
