@@ -13,5 +13,7 @@ jobs:
         run: |
           pwd
           ls -al
-          whoami
+          ls -al /home
+          ls -al /workspace
+          ls -al /github
           env | sort
