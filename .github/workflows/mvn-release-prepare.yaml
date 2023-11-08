@@ -15,7 +15,7 @@ jobs:
   job-mvn-release-prepare-perform:
     name: 'Job: Maven Release: Prepare and Perform'
     permissions:
-      contents: 'read'
+      contents: 'write'
     runs-on: 'ubuntu-latest'
     steps:
       - id: 'checkout'
@@ -48,7 +48,7 @@ jobs:
           GIT_ASKPASS: '${{ runner.temp }}/.askpass'
         run: |
           install -m 700 /dev/null "${GIT_ASKPASS}" # atomically create empty file with appropriate permissions
-          echo 'echo ${PUSH_TOKEN}' >> "${GIT_ASKPASS}" # note single quotes
+          echo 'echo ${GITHUB_TOKEN}' >> "${GIT_ASKPASS}" # note single quotes
       - id: 'mvn-release-prepare-perform'
         name: 'Step: Maven Release: Prepare and Perform'
         env:
@@ -56,7 +56,7 @@ jobs:
           GIT_ASKPASS: '${{ runner.temp }}/.askpass'
           GPG_PASSPHRASE: '${{ secrets.GPG_PASSPHRASE }}'
           MVN_DEBUG: ${{ inputs.mvnDebug && '-X' || '' }}
-          PUSH_TOKEN: '${{ secrets.PUSH_TOKEN }}' # critical; see ~/.askpass
+          # PUSH_TOKEN: '${{ secrets.PUSH_TOKEN }}' # critical; see ~/.askpass
           SCM_GIT_HTTPS_URL: 'scm:git:${{ github.server_url }}/${{ github.repository }}.git'
           SONATYPE_OSSRH_PASSWORD: '${{ secrets.SONATYPE_OSSRH_PASSWORD }}'
           SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
