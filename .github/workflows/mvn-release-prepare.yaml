@@ -44,11 +44,9 @@ jobs:
           echo 'pinentry-mode loopback' >> ~/.gnupg/gpg.conf
       - id: 'setup-askpass'
         name: 'Step: Set Up GIT_ASKPASS'
-        env:
-          GIT_ASKPASS: '${{ runner.temp }}/.askpass'
         run: |
-          install -m 700 /dev/null "${GIT_ASKPASS}" # atomically create empty file with appropriate permissions
-          cat >> "${GIT_ASKPASS}" <<<'#!/bin/bash
+          install -m 700 /dev/null "${RUNNER_TEMP}/.askpass" # atomically create empty file with appropriate permissions
+          cat >> "${RUNNER_TEMP}/.askpass" <<<'#!/bin/bash
           case "${1}" in
               Username*) exec echo x-access-token ;;
               Password*) exec echo "${PUSH_TOKEN}" ;;
@@ -58,7 +56,7 @@ jobs:
         env:
           DRY_RUN: '${{ inputs.dryRun }}'
           GIT_ASKPASS: '${{ runner.temp }}/.askpass'
-          GIT_CURL_VERBOSE: 'true'
+          GIT_CURL_VERBOSE: ${{ inputs.mvnDebug && 1 || 0 }}
           GPG_PASSPHRASE: '${{ secrets.GPG_PASSPHRASE }}'
           MVN_DEBUG: ${{ inputs.mvnDebug && '-X' || '' }}
           PUSH_TOKEN : '${{ secrets.PUSH_TOKEN }}' # critical; see ${GIT_ASKPASS} file
@@ -69,5 +67,3 @@ jobs:
           git config --global user.email 'ci@microbean.org'
           git config --global user.name 'microbean'
           mvn ${MVN_DEBUG} --batch-mode release:prepare release:perform -DdryRun="${DRY_RUN}" -Dscm.url="${SCM_GIT_HTTPS_URL}" -Darguments="-Dscmpublish.pubScmUrl=${SCM_GIT_HTTPS_URL}"
-          exit_code=$?
-          echo "mvn exit code: ${exit_code}"
