@@ -51,7 +51,7 @@ jobs:
           cat >> "${GIT_ASKPASS}" <<<'#!/bin/bash
           case "${1}" in
               Username*) exec echo x-access-token ;;
-              Password*) exec echo "${GITHUB_TOKEN}" ;;
+              Password*) exec echo "${PUSH_TOKEN}" ;;
           esac'
           # echo 'echo ${GITHUB_TOKEN}' >> "${GIT_ASKPASS}" # note single quotes
       - id: 'mvn-release-prepare-perform'
@@ -62,7 +62,7 @@ jobs:
           GIT_CURL_VERBOSE: 'true'
           GPG_PASSPHRASE: '${{ secrets.GPG_PASSPHRASE }}'
           MVN_DEBUG: ${{ inputs.mvnDebug && '-X' || '' }}
-          # PUSH_TOKEN: '${{ secrets.PUSH_TOKEN }}' # critical; see ~/.askpass
+          PUSH_TOKEN: '${{ secrets.PUSH_TOKEN }}' # critical; see ~/.askpass
           SCM_GIT_HTTPS_URL: 'scm:git:${{ github.server_url }}/${{ github.repository }}.git'
           SONATYPE_OSSRH_PASSWORD: '${{ secrets.SONATYPE_OSSRH_PASSWORD }}'
           SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
