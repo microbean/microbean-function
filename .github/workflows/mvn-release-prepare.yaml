@@ -50,8 +50,8 @@ jobs:
           install -m 700 /dev/null "${GIT_ASKPASS}" # atomically create empty file with appropriate permissions
           cat >> "${GIT_ASKPASS}" <<<'#!/bin/bash
           case "${1}" in
-              Username*) exec echo bot;;
-              Password*) exec echo "${GITHUB_TOKEN}";;
+              Username*) exec echo x-access-token ;;
+              Password*) exec echo "${GITHUB_TOKEN}" ;;
           esac'
           # echo 'echo ${GITHUB_TOKEN}' >> "${GIT_ASKPASS}" # note single quotes
       - id: 'mvn-release-prepare-perform'
