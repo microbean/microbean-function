@@ -11,6 +11,10 @@ on:
         default: false
         description: 'Debug?'
         type: 'boolean'
+      pushToken:
+        default: true
+        description: 'Use PAT?'
+        type: 'boolean'
 jobs:
   job-mvn-release-prepare-perform:
     name: 'Job: Maven Release: Prepare and Perform'
@@ -53,7 +57,6 @@ jobs:
               Username*) exec echo x-access-token ;;
               Password*) exec echo "${PUSH_TOKEN}" ;;
           esac'
-          # echo 'echo ${GITHUB_TOKEN}' >> "${GIT_ASKPASS}" # note single quotes
       - id: 'mvn-release-prepare-perform'
         name: 'Step: Maven Release: Prepare and Perform'
         env:
@@ -62,7 +65,7 @@ jobs:
           GIT_CURL_VERBOSE: 'true'
           GPG_PASSPHRASE: '${{ secrets.GPG_PASSPHRASE }}'
           MVN_DEBUG: ${{ inputs.mvnDebug && '-X' || '' }}
-          PUSH_TOKEN: '${{ secrets.PUSH_TOKEN }}' # critical; see ~/.askpass
+          PUSH_TOKEN : '${{ inputs.pushToken && secrets.PUSH_TOKEN || github.token }}' # critical; see ~/.askpass
           SCM_GIT_HTTPS_URL: 'scm:git:${{ github.server_url }}/${{ github.repository }}.git'
           SONATYPE_OSSRH_PASSWORD: '${{ secrets.SONATYPE_OSSRH_PASSWORD }}'
           SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
