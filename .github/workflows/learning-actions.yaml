@@ -11,9 +11,6 @@ jobs:
       - id: 'list-things'
         name: 'Step: List Things'
         run: |
-          pwd
-          ls -al
-          ls -al /home
-          ls -al /workspace
-          ls -al /github
           env | sort
+          ls -al /
+
