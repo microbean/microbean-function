@@ -45,22 +45,22 @@ jobs:
       - id: 'setup-askpass'
         name: 'Step: Set Up GIT_ASKPASS'
         env:
-          GIT_ASKPASS: '${{ github.workspace }}/.askpass'
+          GIT_ASKPASS: '${{ runner.temp }}/.askpass'
         run: |
           install -m 700 /dev/null "${GIT_ASKPASS}" # atomically create empty file with appropriate permissions
-          echo 'echo ${PUSH_TOKEN}' >> "${GIT_ASKPASS}"
+          echo 'echo ${PUSH_TOKEN}' >> "${GIT_ASKPASS}" # note single quotes
       - id: 'mvn-release-prepare-perform'
         name: 'Step: Maven Release: Prepare and Perform'
         env:
           DRY_RUN: '${{ inputs.dryRun }}'
-          GIT_ASKPASS: '${{ github.workspace }}/.askpass'
+          GIT_ASKPASS: '${{ runner.temp }}/.askpass'
           GPG_PASSPHRASE: '${{ secrets.GPG_PASSPHRASE }}'
           MVN_DEBUG: ${{ inputs.mvnDebug && '-X' || '' }}
-          PUSH_TOKEN: '${{ secrets.PUSH_TOKEN }}'
+          PUSH_TOKEN: '${{ secrets.PUSH_TOKEN }}' # critical; see ~/.askpass
+          SCM_GIT_HTTPS_URL: 'scm:git:${{ github.server_url }}/${{ github.repository }}.git'
           SONATYPE_OSSRH_PASSWORD: '${{ secrets.SONATYPE_OSSRH_PASSWORD }}'
           SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
         run: |
           git config --global user.email 'ci@microbean.org'
           git config --global user.name 'microbean'
-          trap 'rm "${GIT_ASKPASS}"' EXIT
-          mvn ${MVN_DEBUG} --batch-mode release:prepare release:perform -DdryRun="${DRY_RUN}" -Dscm.url="scm:git:${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git" -Darguments="-Dscmpublish.pubScmUrl=scm:git:${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.git"
+          mvn ${MVN_DEBUG} --batch-mode release:prepare release:perform -DdryRun="${DRY_RUN}" -Dscm.url="${SCM_GIT_HTTPS_URL}" -Darguments="-Dscmpublish.pubScmUrl=${SCM_GIT_HTTPS_URL}"
