@@ -4,7 +4,8 @@ on: workflow_dispatch
 jobs:
   job-learning:
     name: 'Job: Learning'
-    permissions: none
+    permissions:
+      contents: 'read'
     runs-on: 'ubuntu-latest'
     steps:
       - id: 'list-things'
