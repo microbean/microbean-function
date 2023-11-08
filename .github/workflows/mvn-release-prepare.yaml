@@ -11,22 +11,18 @@ on:
         default: false
         description: 'Debug?'
         type: 'boolean'
-      pushToken:
-        default: true
-        description: 'Use PAT?'
-        type: 'boolean'
 jobs:
   job-mvn-release-prepare-perform:
     name: 'Job: Maven Release: Prepare and Perform'
     permissions:
-      contents: 'write'
+      contents: 'read'
     runs-on: 'ubuntu-latest'
     steps:
       - id: 'checkout'
         name: 'Step: Checkout'
         uses: 'actions/checkout@v4'
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           persist-credentials: false
       - id: 'setup-java'
         name: 'Step: Set Up Java and Maven'
@@ -65,7 +61,7 @@ jobs:
           GIT_CURL_VERBOSE: 'true'
           GPG_PASSPHRASE: '${{ secrets.GPG_PASSPHRASE }}'
           MVN_DEBUG: ${{ inputs.mvnDebug && '-X' || '' }}
-          PUSH_TOKEN : '${{ inputs.pushToken && secrets.PUSH_TOKEN || github.token }}' # critical; see ~/.askpass
+          PUSH_TOKEN : '${{ secrets.PUSH_TOKEN }}' # critical; see ${GIT_ASKPASS} file
           SCM_GIT_HTTPS_URL: 'scm:git:${{ github.server_url }}/${{ github.repository }}.git'
           SONATYPE_OSSRH_PASSWORD: '${{ secrets.SONATYPE_OSSRH_PASSWORD }}'
           SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
