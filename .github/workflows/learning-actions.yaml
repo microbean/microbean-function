@@ -1,0 +1,16 @@
+name: 'Workflow: Learning'
+run-name: 'Workflow Run: Learning'
+on: workflow_dispatch
+jobs:
+  job-learning:
+    name: 'Job: Learning'
+    permissions: none
+    runs-on: 'ubuntu-latest'
+    steps:
+      - id: 'list-things'
+        name: 'Step: List Things'
+        run: |
+          pwd
+          ls -al
+          whoami
+          env | sort
