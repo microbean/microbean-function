@@ -48,12 +48,18 @@ jobs:
           GIT_ASKPASS: '${{ runner.temp }}/.askpass'
         run: |
           install -m 700 /dev/null "${GIT_ASKPASS}" # atomically create empty file with appropriate permissions
-          echo 'echo ${GITHUB_TOKEN}' >> "${GIT_ASKPASS}" # note single quotes
+          cat >> "${GIT_ASKPASS}" <<<'#!/bin/bash
+          case "${1}" in
+              Username*) exec echo bot;;
+              Password*) exec echo "${GITHUB_TOKEN}";;
+          esac'
+          # echo 'echo ${GITHUB_TOKEN}' >> "${GIT_ASKPASS}" # note single quotes
       - id: 'mvn-release-prepare-perform'
         name: 'Step: Maven Release: Prepare and Perform'
         env:
           DRY_RUN: '${{ inputs.dryRun }}'
           GIT_ASKPASS: '${{ runner.temp }}/.askpass'
+          GIT_CURL_VERBOSE: 'true'
           GPG_PASSPHRASE: '${{ secrets.GPG_PASSPHRASE }}'
           MVN_DEBUG: ${{ inputs.mvnDebug && '-X' || '' }}
           # PUSH_TOKEN: '${{ secrets.PUSH_TOKEN }}' # critical; see ~/.askpass
