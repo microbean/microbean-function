@@ -119,6 +119,7 @@ jobs:
           # mvn ${MVN_DEBUG} --batch-mode org.apache.maven.plugins:maven-release-plugin:3.0.0:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site" -Dscm.url="${SCM_GIT_HTTPS_URL}" -Darguments="-Dscmpublish.pubScmUrl=${SCM_GIT_HTTPS_URL}"
           mvn ${MVN_DEBUG} --batch-mode release:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site"
       - id: 'upload-site'
+        if: 'inputs.dryRun != true'
         name: 'Step: Upload Site Directory'
         uses: 'actions/upload-artifact@v3'
         with:
