@@ -12,6 +12,10 @@ jobs:
         name: 'Step: List Things'
         run: |
           env | sort
-          ls -al ${XDG_RUNTIME_DIR}
-          ls -al ${XDG_CONFIG_HOME}
+          echo "ls -al ${XDG_RUNTIME_DIR}"
+          ls -al "${XDG_RUNTIME_DIR}"
+          echo "ls -al ${XDG_CONFIG_HOME}/configstore"
+          ls -al "${XDG_CONFIG_HOME}"/configstore
+          echo "ls -al ${XDG_CONFIG_HOME}/GitHub"
+          ls -al "${XDG_CONFIG_HOME}"/GitHub
 
