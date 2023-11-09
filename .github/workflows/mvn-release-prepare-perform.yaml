@@ -126,7 +126,7 @@ jobs:
           path: |
             target/site
   job-mvn-scmpublish-publish:
-    name: 'Job: Maven SCM Publish: Publish"
+    name: 'Job: Maven SCM Publish: Publish'
     needs: 'job-mvn-release-perform'
     permissions:
       contents: 'read'
