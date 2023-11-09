@@ -1,0 +1,112 @@
+name: 'Workflow: Maven Release: Prepare and Perform'
+run-name: 'Workflow Run: Maven Release: Prepare and Perform'
+on:
+  workflow_dispatch:
+    inputs:
+      dryRun:
+        default: true
+        description: 'Dry run?'
+        type: 'boolean'
+      mvnDebug:
+        default: false
+        description: 'Debug?'
+        type: 'boolean'
+jobs:
+  job-mvn-release-prepare:
+    name: 'Job: Maven Release: Prepare'
+    permissions:
+      contents: 'read'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - id: 'checkout'
+        name: 'Step: Checkout'
+        uses: 'actions/checkout@v4'
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - id: 'setup-java'
+        name: 'Step: Set Up Java and Maven'
+        uses: 'actions/setup-java@v3'
+        with:
+          cache: 'maven'
+          distribution: 'temurin'
+          java-version: '11'
+          mvn-toolchain-id: 'Temurin 11'
+          mvn-toolchain-vendor: 'openjdk' # see ../../pom.xml
+      - id: 'setup-askpass'
+        name: 'Step: Set Up GIT_ASKPASS'
+        run: |
+          install -m 700 /dev/null "${RUNNER_TEMP}/.askpass" # atomically create empty file with appropriate permissions
+          cat >> "${RUNNER_TEMP}/.askpass" <<<'#!/bin/bash
+          case "${1}" in
+              Username*) exec echo x-access-token ;;
+              Password*) exec echo "${PUSH_TOKEN}" ;;
+          esac'
+      - id: 'mvn-release-prepare'
+        name: 'Step: Maven Release: Prepare'
+        env:
+          DRY_RUN: '${{ inputs.dryRun }}'
+          GIT_ASKPASS: '${{ runner.temp }}/.askpass'
+          GIT_CURL_VERBOSE: ${{ inputs.mvnDebug && 1 || 0 }}
+          MVN_DEBUG: ${{ inputs.mvnDebug && '-X' || '' }}
+          PUSH_TOKEN : '${{ secrets.PUSH_TOKEN }}' # critical; see ${GIT_ASKPASS} file
+          SCM_GIT_HTTPS_URL: 'scm:git:${{ github.server_url }}/${{ github.repository }}.git'
+        run: |
+          git config --global user.email 'ci@microbean.org'
+          git config --global user.name 'microbean'
+          mvn ${MVN_DEBUG} --batch-mode release:prepare -DdryRun="${DRY_RUN}" -Dscm.url="${SCM_GIT_HTTPS_URL}"
+      - id: 'upload-prepared-release'
+        name: 'Step: Upload Prepared Release'
+        uses: 'actions/upload-artifact@v3'
+        with:
+          name: 'prepared-release'
+          path: |
+            release.properties
+            target/
+  job-mvn-release-perform:
+    name: 'Job: Maven Release: Perform'
+    needs: 'job-mvn-release-prepare'
+    permissions:
+      contents: 'read'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - id: 'setup-java'
+        name: 'Step: Set Up Java and Maven'
+        uses: 'actions/setup-java@v3'
+        with:
+          cache: 'maven'
+          distribution: 'temurin'
+          gpg-passphrase: 'GPG_PASSPHRASE'
+          gpg-private-key: '${{ secrets.GPG_PRIVATE_KEY }}'
+          java-version: '11'
+          mvn-toolchain-id: 'Temurin 11'
+          mvn-toolchain-vendor: 'openjdk' # see ../../pom.xml
+          server-id: 'sonatype-oss-repository-hosting' # see https://github.com/microbean/microbean-parent/blob/master/pom.xml#L38
+          server-password: 'SONATYPE_OSSRH_PASSWORD'
+          server-username: 'SONATYPE_OSSRH_USERNAME'
+      - id: 'setup-gpg'
+        name: 'Step: Set Up GPG'
+        run: |
+          echo 'pinentry-mode loopback' >> ~/.gnupg/gpg.conf
+      - id: 'download-prepared-release'
+        name: 'Step: Download Prepared Release'
+        uses: 'actions/download-artifact@v3'
+        with:
+          name: 'prepared-release'
+          path: '.'
+      - id: 'mvn-release-perform'
+        name: 'Step: Maven Release: Perform'
+        env:
+          DRY_RUN: '${{ inputs.dryRun }}'
+          GIT_CURL_VERBOSE: ${{ inputs.mvnDebug && 1 || 0 }}
+          GPG_PASSPHRASE: '${{ secrets.GPG_PASSPHRASE }}'
+          MVN_DEBUG: ${{ inputs.mvnDebug && '-X' || '' }}
+          SCM_GIT_HTTPS_URL: 'scm:git:${{ github.server_url }}/${{ github.repository }}.git'
+          SONATYPE_OSSRH_PASSWORD: '${{ secrets.SONATYPE_OSSRH_PASSWORD }}'
+          SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
+        run: |
+          git config --global user.email 'ci@microbean.org'
+          git config --global user.name 'microbean'
+          # mvn ${MVN_DEBUG} --batch-mode org.apache.maven.plugins:maven-release-plugin:3.0.0:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site" -Dscm.url="${SCM_GIT_HTTPS_URL}" -Darguments="-Dscmpublish.pubScmUrl=${SCM_GIT_HTTPS_URL}"
+          ls -al .
+          ls -al ./target
