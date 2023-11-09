@@ -70,6 +70,12 @@ jobs:
       contents: 'read'
     runs-on: 'ubuntu-latest'
     steps:
+      - id: 'checkout' # really shouldn't be needed, but setup-java requires the pom.xml to restore the cache. Ugh!
+        name: 'Step: Checkout'
+        uses: 'actions/checkout@v4'
+        with:
+          fetch-depth: 1
+          persist-credentials: false
       - id: 'setup-java'
         name: 'Step: Set Up Java and Maven'
         uses: 'actions/setup-java@v3'
@@ -93,7 +99,7 @@ jobs:
         uses: 'actions/download-artifact@v3'
         with:
           name: 'prepared-release'
-          path: '.'
+          path: '{{ runner.temp }}'
       - id: 'mvn-release-perform'
         name: 'Step: Maven Release: Perform'
         env:
@@ -109,4 +115,4 @@ jobs:
           git config --global user.name 'microbean'
           # mvn ${MVN_DEBUG} --batch-mode org.apache.maven.plugins:maven-release-plugin:3.0.0:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site" -Dscm.url="${SCM_GIT_HTTPS_URL}" -Darguments="-Dscmpublish.pubScmUrl=${SCM_GIT_HTTPS_URL}"
           ls -al .
-          ls -al ./target
+          ls -alR "${RUNNER_TEMP}"
