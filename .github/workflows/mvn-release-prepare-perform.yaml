@@ -122,10 +122,12 @@ jobs:
         name: 'Step: Upload Site Directory'
         uses: 'actions/upload-artifact@v3'
         with:
+          if-no-files-found: 'error'
           name: 'site'
           path: |
             target/site
   job-mvn-scmpublish-publish:
+    if: 'inputs.dryRun != true'
     name: 'Job: Maven SCM Publish: Publish'
     needs: 'job-mvn-release-perform'
     permissions:
@@ -168,7 +170,6 @@ jobs:
       - id: 'mvn-scmpublish-publish'
         name: 'Step: Maven SCM Publish: Publish'
         env:
-          DRY_RUN: '${{ inputs.dryRun }}'
           GIT_ASKPASS: '${{ runner.temp }}/.askpass'
           GIT_CURL_VERBOSE: ${{ inputs.mvnDebug && 1 || 0 }}
           MVN_DEBUG: ${{ inputs.mvnDebug && '-X' || '' }}
@@ -176,4 +177,4 @@ jobs:
           SCM_GIT_HTTPS_URL: 'scm:git:${{ github.server_url }}/${{ github.repository }}.git'
         run: |
           ls -alR .
-          echo mvn ${MVN_DEBUG} --batch-mode scm-publish:publish-scm -Dscmpublish.dryRun="${DRY_RUN}" scmpublish.pubScmUrl="${SCM_GIT_HTTPS_URL}"
+          echo mvn ${MVN_DEBUG} --batch-mode scm-publish:publish-scm scmpublish.pubScmUrl="${SCM_GIT_HTTPS_URL}"
