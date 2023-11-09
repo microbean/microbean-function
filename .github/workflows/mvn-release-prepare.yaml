@@ -35,11 +35,9 @@ jobs:
           java-version: '11'
           mvn-toolchain-id: 'Temurin 11'
           mvn-toolchain-vendor: 'openjdk' # see ../../pom.xml
-          overwrite-settings: false
           server-id: 'sonatype-oss-repository-hosting' # see https://github.com/microbean/microbean-parent/blob/master/pom.xml#L38
           server-password: 'SONATYPE_OSSRH_PASSWORD'
           server-username: 'SONATYPE_OSSRH_USERNAME'
-          settings-path: '{{ github.workspace }}/.github/workflows/.maven' # seems to be the parent directory
       - id: 'setup-gpg'
         name: 'Step: Set Up GPG'
         run: |
@@ -68,4 +66,4 @@ jobs:
         run: |
           git config --global user.email 'ci@microbean.org'
           git config --global user.name 'microbean'
-          mvn -s '.github/workflows/.maven/settings.xml' ${MVN_DEBUG} --batch-mode release:prepare release:perform -DdryRun="${DRY_RUN}" -Dscm.url="${SCM_GIT_HTTPS_URL}" -Darguments="-Dscmpublish.pubScmUrl=${SCM_GIT_HTTPS_URL}"
+          mvn ${MVN_DEBUG} --batch-mode release:prepare release:perform -DdryRun="${DRY_RUN}" -Dscm.url="${SCM_GIT_HTTPS_URL}" -Darguments="-Dscmpublish.pubScmUrl=${SCM_GIT_HTTPS_URL}"
