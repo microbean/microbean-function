@@ -13,4 +13,5 @@ jobs:
         run: |
           env | sort
           ls -al ${GITHUB_WORKSPACE}
+          ls -al ${HOME}/work
 
