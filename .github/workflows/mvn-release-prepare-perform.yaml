@@ -114,7 +114,7 @@ jobs:
           git config --global user.email 'ci@microbean.org'
           git config --global user.name 'microbean'
           # mvn ${MVN_DEBUG} --batch-mode org.apache.maven.plugins:maven-release-plugin:3.0.0:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site" -Dscm.url="${SCM_GIT_HTTPS_URL}" -Darguments="-Dscmpublish.pubScmUrl=${SCM_GIT_HTTPS_URL}"
-          ls -al .
-          ls -al target
-          cat release.properties
+          mvn ${MVN_DEBUG} --batch-mode release:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site"
+
+
 
