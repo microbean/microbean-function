@@ -99,7 +99,7 @@ jobs:
         uses: 'actions/download-artifact@v3'
         with:
           name: 'prepared-release'
-          path: '${{ runner.temp }}'
+          path: '.'
       - id: 'mvn-release-perform'
         name: 'Step: Maven Release: Perform'
         env:
@@ -115,4 +115,6 @@ jobs:
           git config --global user.name 'microbean'
           # mvn ${MVN_DEBUG} --batch-mode org.apache.maven.plugins:maven-release-plugin:3.0.0:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site" -Dscm.url="${SCM_GIT_HTTPS_URL}" -Darguments="-Dscmpublish.pubScmUrl=${SCM_GIT_HTTPS_URL}"
           ls -al .
-          ls -alR "${RUNNER_TEMP}"
+          ls -al target
+          cat release.properties
+
