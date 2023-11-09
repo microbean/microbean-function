@@ -12,5 +12,5 @@ jobs:
         name: 'Step: List Things'
         run: |
           env | sort
-          ls -al /
+          ls -al ${GITHUB_WORKSPACE}
 
