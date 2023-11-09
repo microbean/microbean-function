@@ -115,8 +115,65 @@ jobs:
         run: |
           git config --global user.email 'ci@microbean.org'
           git config --global user.name 'microbean'
+          ls -al .
           # mvn ${MVN_DEBUG} --batch-mode org.apache.maven.plugins:maven-release-plugin:3.0.0:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site" -Dscm.url="${SCM_GIT_HTTPS_URL}" -Darguments="-Dscmpublish.pubScmUrl=${SCM_GIT_HTTPS_URL}"
           mvn ${MVN_DEBUG} --batch-mode release:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site"
-
-
-
+      - id: 'upload-site'
+        name: 'Step: Upload Site Directory'
+        uses: 'actions/upload-artifact@v3'
+        with:
+          name: 'site'
+          path: |
+            target/site
+  job-mvn-scmpublish-publish:
+    name: 'Job: Maven SCM Publish: Publish"
+    needs: 'job-mvn-release-perform'
+    permissions:
+      contents: 'read'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - id: 'checkout' # really shouldn't be needed, but setup-java requires the pom.xml to restore the cache. Ugh!
+        name: 'Step: Checkout'
+        uses: 'actions/checkout@v4'
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          sparse-checkout: |
+            pom.xml
+          sparse-checkout-cone-mode: false
+      - id: 'setup-java'
+        name: 'Step: Set Up Java and Maven'
+        uses: 'actions/setup-java@v3'
+        with:
+          cache: 'maven'
+          distribution: 'temurin'
+          java-version: '11'
+          mvn-toolchain-id: 'Temurin 11'
+          mvn-toolchain-vendor: 'openjdk' # see ../../pom.xml
+      - id: 'setup-askpass'
+        name: 'Step: Set Up GIT_ASKPASS'
+        run: |
+          install -m 700 /dev/null "${RUNNER_TEMP}/.askpass" # atomically create empty file with appropriate permissions
+          cat >> "${RUNNER_TEMP}/.askpass" <<<'#!/bin/bash
+          case "${1}" in
+              Username*) exec echo x-access-token ;;
+              Password*) exec echo "${PUSH_TOKEN}" ;;
+          esac'
+      - id: 'download-site'
+        name: 'Step: Download Site Directory'
+        uses: 'actions/download-artifact@v3'
+        with:
+          name: 'site'
+          path: 'target/staging'
+      - id: 'mvn-scmpublish-publish'
+        name: 'Step: Maven SCM Publish: Publish'
+        env:
+          DRY_RUN: '${{ inputs.dryRun }}'
+          GIT_ASKPASS: '${{ runner.temp }}/.askpass'
+          GIT_CURL_VERBOSE: ${{ inputs.mvnDebug && 1 || 0 }}
+          MVN_DEBUG: ${{ inputs.mvnDebug && '-X' || '' }}
+          PUSH_TOKEN : '${{ secrets.PUSH_TOKEN }}' # critical; see ${GIT_ASKPASS} file
+          SCM_GIT_HTTPS_URL: 'scm:git:${{ github.server_url }}/${{ github.repository }}.git'
+        run: |
+          ls -alR .
+          echo mvn ${MVN_DEBUG} --batch-mode scm-publish:publish-scm -Dscmpublish.dryRun="${DRY_RUN}" scmpublish.pubScmUrl="${SCM_GIT_HTTPS_URL}"
