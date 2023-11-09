@@ -99,7 +99,7 @@ jobs:
         uses: 'actions/download-artifact@v3'
         with:
           name: 'prepared-release'
-          path: '{{ runner.temp }}'
+          path: '${{ runner.temp }}'
       - id: 'mvn-release-perform'
         name: 'Step: Maven Release: Perform'
         env:
