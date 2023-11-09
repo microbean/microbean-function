@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                              http://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <servers>
+    <server>
+      <id>github.com</id>
+      <username>x-access-token</username>
+      <password>${env.PERSONAL_ACCESS_TOKEN}</password>
+    </server>
+    <server>
+      <id>gpg.passphrase</id>
+      <passphrase>${env.GPG_PASSPHRASE}</passphrase>
+    </server>
+    <server>
+      <id>sonatype-oss-repository-hosting</id>
+      <username>${env.SONATYPE_OSSRH_USERNAME}</username>
+      <password>${env.SONATYPE_OSSRH_PASSWORD}</password>
+    </server>
+  </servers>  
+</settings>
