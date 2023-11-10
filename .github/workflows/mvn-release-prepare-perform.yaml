@@ -115,7 +115,7 @@ jobs:
         run: |
           git config --global user.email 'ci@microbean.org'
           git config --global user.name 'microbean'
-          mvn ${MVN_DEBUG} -e --batch-mode release:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site" -Darguments="-e -DautoReleaseAfterClose=false"
+          mvn ${MVN_DEBUG} -e --batch-mode release:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site" -Darguments="-e -DautoReleaseAfterClose=false"          
       - id: 'upload-site'
         if: 'inputs.dryRun != true'
         name: 'Step: Upload Site Directory'
@@ -175,4 +175,4 @@ jobs:
           PUSH_TOKEN : '${{ secrets.PUSH_TOKEN }}' # critical; see ${GIT_ASKPASS} file
           SCM_GIT_HTTPS_URL: 'scm:git:${{ github.server_url }}/${{ github.repository }}.git'
         run: |
-          mvn ${MVN_DEBUG} -e --batch-mode scm-publish:publish-scm -Dscmpublish.pubScmUrl="${SCM_GIT_HTTPS_URL}"
+          mvn ${MVN_DEBUG} -e --batch-mode scm-publish:publish-scm -Dscmpublish.pubScmUrl="${SCM_GIT_HTTPS_URL} -Dscmpublish.content=target/staging"
