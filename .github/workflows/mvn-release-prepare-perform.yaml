@@ -115,7 +115,7 @@ jobs:
         run: |
           git config --global user.email 'ci@microbean.org'
           git config --global user.name 'microbean'
-          mvn ${MVN_DEBUG} --batch-mode release:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site"
+          mvn ${MVN_DEBUG} --batch-mode release:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site" -Darguments="-DskipStaging=true"
       - id: 'upload-site'
         if: 'inputs.dryRun != true'
         name: 'Step: Upload Site Directory'
