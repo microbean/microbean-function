@@ -115,9 +115,6 @@ jobs:
         run: |
           git config --global user.email 'ci@microbean.org'
           git config --global user.name 'microbean'
-          project.build.directory="$(mvn --batch-mode --quiet help:evaluate -Dexpression='project.build.directory' -DforceStdout=true)"
-          echo "${project.build.directory}"
-          echo "$(project.build.directory}" >> "${GITHUB_ENV}"
           mvn ${MVN_DEBUG} --batch-mode release:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site"
       - id: 'upload-site'
         if: 'inputs.dryRun != true'
@@ -127,7 +124,7 @@ jobs:
           if-no-files-found: 'error'
           name: 'site'
           path: |
-            ${{ env.project.build.directory }}/checkout/${{ env.project.build.directory }}/site
+            target/checkout/target/site
   job-mvn-scmpublish-publish:
     if: 'inputs.dryRun != true'
     name: 'Job: Maven SCM Publish: Publish'
@@ -178,5 +175,4 @@ jobs:
           PUSH_TOKEN : '${{ secrets.PUSH_TOKEN }}' # critical; see ${GIT_ASKPASS} file
           SCM_GIT_HTTPS_URL: 'scm:git:${{ github.server_url }}/${{ github.repository }}.git'
         run: |
-          ls -alR .
-          echo mvn ${MVN_DEBUG} --batch-mode scm-publish:publish-scm scmpublish.pubScmUrl="${SCM_GIT_HTTPS_URL}"
+          mvn ${MVN_DEBUG} --batch-mode scm-publish:publish-scm scmpublish.pubScmUrl="${SCM_GIT_HTTPS_URL}"
