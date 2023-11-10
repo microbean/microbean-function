@@ -3,10 +3,6 @@ run-name: 'Workflow Run: Maven Release: Prepare and Perform'
 on:
   workflow_dispatch:
     inputs:
-      autoReleaseAfterClose:
-        default: false
-        description: 'Automatically release staging repository?'
-        type: 'boolean'
       dryRun:
         default: true
         description: 'Dry run?'
@@ -110,7 +106,6 @@ jobs:
       - id: 'mvn-release-perform'
         name: 'Step: Maven Release: Perform'
         env:
-          AUTO_RELEASE_AFTER_CLOSE: '${{ inputs.autoReleaseAfterClose }}'
           DRY_RUN: '${{ inputs.dryRun }}'
           GIT_CURL_VERBOSE: ${{ inputs.mvnDebug && 1 || 0 }}
           GPG_PASSPHRASE: '${{ secrets.GPG_PASSPHRASE }}'
@@ -121,8 +116,7 @@ jobs:
         run: |
           git config --global user.email 'ci@microbean.org'
           git config --global user.name 'microbean'
-          mvn ${MVN_DEBUG} -e --batch-mode release:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site" -Darguments="-e -DautoReleaseAfterClose=${AUTO_RELEASE_AFTER_CLOSE} -DskipTests=true"
-          # mvn ${MVN_DEBUG} -e --batch-mode nexus-staging:release
+          mvn ${MVN_DEBUG} -e --batch-mode release:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site" -Darguments="-e -DskipRemoteStaging=true -DskipTests=true"
       - id: 'upload-nexus-staging'
         if: 'inputs.dryRun != true'
         name: 'Step: Upload Nexus Staging Directory'
@@ -141,10 +135,98 @@ jobs:
           name: 'site'
           path: |
             target/checkout/target/site
+  job-mvn-nexus-staging-deploy-staged:
+    if: 'inputs.dryRun != true'
+    name: 'Job: Maven Nexus Staging: Deploy Staged'
+    needs: 'job-mvn-release-perform'
+    permissions:
+      contents: 'read'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - id: 'checkout' # really shouldn't be needed, but setup-java requires the pom.xml to restore the cache. Ugh!
+        name: 'Step: Checkout'
+        uses: 'actions/checkout@v4'
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          sparse-checkout: |
+            pom.xml
+          sparse-checkout-cone-mode: false
+      - id: 'setup-java'
+        name: 'Step: Set Up Java and Maven'
+        uses: 'actions/setup-java@v3'
+        with:
+          cache: 'maven'
+          distribution: 'temurin'
+          java-version: '11'
+          mvn-toolchain-id: 'Temurin 11'
+          mvn-toolchain-vendor: 'openjdk' # see ../../pom.xml
+          server-id: 'sonatype-oss-repository-hosting' # see https://github.com/microbean/microbean-parent/blob/master/pom.xml#L38
+          server-password: 'SONATYPE_OSSRH_PASSWORD'
+          server-username: 'SONATYPE_OSSRH_USERNAME'
+      - id: 'download-nexus-staging'
+        name: 'Step: Download Nexus Staging Directory'
+        uses: 'actions/download-artifact@v3'
+        with:
+          name: 'nexus-staging'
+          path: 'target/nexus-staging/staging'
+      - id: 'mvn-nexus-staging-deploy-staged'
+        name: 'Step: Maven Nexus Staging: Deploy Staged'
+        env:
+          MVN_DEBUG: ${{ inputs.mvnDebug && '-X' || '' }}
+          SONATYPE_OSSRH_PASSWORD: '${{ secrets.SONATYPE_OSSRH_PASSWORD }}'
+          SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
+        run: |
+          ls -alR
+          mvn ${MVN_DEBUG} -e --batch-mode nexus-staging:deploy-staged -DskipStagingRepositoryClose=true
+  job-mvn-nexus-staging-close:
+    if: 'inputs.dryRun != true'
+    name: 'Job: Maven Nexus Staging: Close'
+    needs: 'job-mvn-nexus-staging-deploy-staged'
+    permissions:
+      contents: 'read'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - id: 'checkout' # really shouldn't be needed, but setup-java requires the pom.xml to restore the cache. Ugh!
+        name: 'Step: Checkout'
+        uses: 'actions/checkout@v4'
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          sparse-checkout: |
+            pom.xml
+          sparse-checkout-cone-mode: false
+      - id: 'setup-java'
+        name: 'Step: Set Up Java and Maven'
+        uses: 'actions/setup-java@v3'
+        with:
+          cache: 'maven'
+          distribution: 'temurin'
+          java-version: '11'
+          mvn-toolchain-id: 'Temurin 11'
+          mvn-toolchain-vendor: 'openjdk' # see ../../pom.xml
+          server-id: 'sonatype-oss-repository-hosting' # see https://github.com/microbean/microbean-parent/blob/master/pom.xml#L38
+          server-password: 'SONATYPE_OSSRH_PASSWORD'
+          server-username: 'SONATYPE_OSSRH_USERNAME'
+      - id: 'download-nexus-staging'
+        name: 'Step: Download Nexus Staging Directory'
+        uses: 'actions/download-artifact@v3'
+        with:
+          name: 'nexus-staging'
+          path: 'target/nexus-staging/staging'
+      - id: 'mvn-nexus-staging-close'
+        name: 'Step: Maven Nexus Staging: Close'
+        env:
+          MVN_DEBUG: ${{ inputs.mvnDebug && '-X' || '' }}
+          SONATYPE_OSSRH_PASSWORD: '${{ secrets.SONATYPE_OSSRH_PASSWORD }}'
+          SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
+        run: |
+          ls -alR
+          mvn ${MVN_DEBUG} -e --batch-mode nexus-staging:close -DautoReleaseOnClose=false
   job-mvn-nexus-staging-release:
     if: 'inputs.dryRun != true'
     name: 'Job: Maven Nexus Staging: Release'
-    needs: 'job-mvn-release-perform'
+    needs: 'job-mvn-nexus-staging-close'
     permissions:
       contents: 'read'
     runs-on: 'ubuntu-latest'
@@ -183,6 +265,7 @@ jobs:
           SONATYPE_OSSRH_PASSWORD: '${{ secrets.SONATYPE_OSSRH_PASSWORD }}'
           SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
         run: |
+          # mvn ${MVN_DEBUG} -e --batch-mode nexus-staging:release
           ls -alR .
   job-mvn-scmpublish-publish:
     if: 'inputs.dryRun != true'
