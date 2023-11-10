@@ -3,6 +3,10 @@ run-name: 'Workflow Run: Maven Release: Prepare and Perform'
 on:
   workflow_dispatch:
     inputs:
+      autoReleaseAfterClose:
+        default: false
+        description: 'Automatically release staging repository?'
+        type: 'boolean'
       dryRun:
         default: true
         description: 'Dry run?'
@@ -105,6 +109,7 @@ jobs:
       - id: 'mvn-release-perform'
         name: 'Step: Maven Release: Perform'
         env:
+          AUTO_RELEASE_AFTER_CLOSE: '${{ inputs.autoReleaseAfterClose }}'
           DRY_RUN: '${{ inputs.dryRun }}'
           GIT_CURL_VERBOSE: ${{ inputs.mvnDebug && 1 || 0 }}
           GPG_PASSPHRASE: '${{ secrets.GPG_PASSPHRASE }}'
@@ -115,7 +120,7 @@ jobs:
         run: |
           git config --global user.email 'ci@microbean.org'
           git config --global user.name 'microbean'
-          mvn ${MVN_DEBUG} -e --batch-mode release:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site" -Darguments="-e -DautoReleaseAfterClose=false -DskipTests=true"     
+          mvn ${MVN_DEBUG} -e --batch-mode release:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site" -Darguments="-e -DautoReleaseAfterClose=${AUTO_RELEASE_AFTER_CLOSE} -DskipTests=true"     
       - id: 'upload-site'
         if: 'inputs.dryRun != true'
         name: 'Step: Upload Site Directory'
@@ -175,5 +180,6 @@ jobs:
           PUSH_TOKEN : '${{ secrets.PUSH_TOKEN }}' # critical; see ${GIT_ASKPASS} file
           SCM_GIT_HTTPS_URL: 'scm:git:${{ github.server_url }}/${{ github.repository }}.git'
         run: |
-          ls -al target/staging
+          git config --global user.email 'ci@microbean.org'
+          git config --global user.name 'microbean'
           mvn ${MVN_DEBUG} -e --batch-mode scm-publish:publish-scm -Dscmpublish.pubScmUrl="${SCM_GIT_HTTPS_URL}" -Dscmpublish.content=target/staging
