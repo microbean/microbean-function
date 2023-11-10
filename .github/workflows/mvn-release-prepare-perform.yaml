@@ -115,7 +115,7 @@ jobs:
         run: |
           git config --global user.email 'ci@microbean.org'
           git config --global user.name 'microbean'
-          mvn ${MVN_DEBUG} --batch-mode release:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site" -Darguments="-DaltReleaseDeploymentRepository=sonatype-oss-repository-hosting::https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DskipStaging=true"
+          mvn ${MVN_DEBUG} --batch-mode release:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site" -Darguments="-DaltDeploymentRepository=sonatype-oss-repository-hosting::https://oss.sonatype.org/service/local/staging/deploy/maven2/ -DskipStaging=true"
       - id: 'upload-site'
         if: 'inputs.dryRun != true'
         name: 'Step: Upload Site Directory'
