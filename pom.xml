@@ -201,8 +201,8 @@
           <artifactId>nexus-staging-maven-plugin</artifactId>
           <version>1.6.13</version>
           <configuration>
-            <!-- <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl> -->
-            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+            <autoReleaseAfterClose>${autoReleaseAfterClose}</autoReleaseAfterClose>
+            <nexusUrl>${nexusUrl}</nexusUrl>
           </configuration>
           <dependencies>
             <!-- https://issues.sonatype.org/browse/NEXUS-26993?focusedCommentId=1098136&page=com.atlassian.jira.plugin.system.issuetabpanels%3Acomment-tabpanel#comment-1098136 -->
@@ -221,6 +221,11 @@
   <properties>
 
     <jdkToolchainVendor>openjdk</jdkToolchainVendor>
+
+    <!-- nexus-staging-maven-plugin properties -->
+    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+    <!-- <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl> -->
+    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
 
     <!-- maven-compiler-plugin properties -->
     <maven.compiler.release>11</maven.compiler.release>
