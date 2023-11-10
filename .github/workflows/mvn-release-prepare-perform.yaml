@@ -115,7 +115,9 @@ jobs:
         run: |
           git config --global user.email 'ci@microbean.org'
           git config --global user.name 'microbean'
-          ls -al .
+          project.build.directory="$(mvn --batch-mode --quiet help:evaluate -Dexpression='project.build.directory' -DforceStdout=true)"
+          echo "${project.build.directory}"
+          echo "$(project.build.directory}" >> "${GITHUB_ENV}"
           mvn ${MVN_DEBUG} --batch-mode release:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site"
       - id: 'upload-site'
         if: 'inputs.dryRun != true'
@@ -125,7 +127,7 @@ jobs:
           if-no-files-found: 'error'
           name: 'site'
           path: |
-            target/checkout/target/site
+            ${{ env.project.build.directory }}/checkout/${{ env.project.build.directory }}/site
   job-mvn-scmpublish-publish:
     if: 'inputs.dryRun != true'
     name: 'Job: Maven SCM Publish: Publish'
