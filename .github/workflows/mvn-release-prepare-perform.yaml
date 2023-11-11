@@ -215,7 +215,7 @@ jobs:
         uses: 'actions/download-artifact@v3'
         with:
           name: 'nexus-staging'
-          path: 'target/nexus-staging/'
+          path: 'target/nexus-staging/deferred' # "deferred" turns out to be hard coded?!
       - id: 'mvn-nexus-staging-deploy-staged'
         name: 'Step: Maven Nexus Staging: Deploy Staged'
         env:
@@ -226,7 +226,7 @@ jobs:
         run: |
           ls -alR
           echo "repo id: ${SONATYPE_OSSRH_STAGING_PROFILE_ID}"
-          mvn ${MVN_DEBUG} -e --batch-mode nexus-staging:deploy-staged -DstagingRepositoryId="${SONATYPE_OSSRH_STAGING_REPOSITORY_ID}" -DskipStagingRepositoryClose=true -DaltStagingDirectory="target/nexus-staging"
+          mvn ${MVN_DEBUG} -e --batch-mode nexus-staging:deploy-staged -DstagingRepositoryId="${SONATYPE_OSSRH_STAGING_REPOSITORY_ID}" -DskipStagingRepositoryClose=true
   job-mvn-nexus-staging-close:
     if: 'inputs.dryRun != true'
     name: 'Job: Maven Nexus Staging: Close'
