@@ -135,10 +135,54 @@ jobs:
           name: 'site'
           path: |
             target/checkout/target/site
+  job-mvn-nexus-staging-open:
+    if: 'inputs.dryRun != true'
+    name: 'Job: Maven Nexus Staging: Open Staging Repository'
+    needs: 'job-mvn-release-perform'
+    permissions:
+      contents: 'read'
+    runs-on: 'ubuntu-latest'
+    steps:
+      - id: 'checkout' # really shouldn't be needed, but setup-java requires the pom.xml to restore the cache. Ugh!
+        name: 'Step: Checkout'
+        uses: 'actions/checkout@v4'
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          sparse-checkout: |
+            pom.xml
+          sparse-checkout-cone-mode: false
+      - id: 'setup-java'
+        name: 'Step: Set Up Java and Maven'
+        uses: 'actions/setup-java@v3'
+        with:
+          cache: 'maven'
+          distribution: 'temurin'
+          java-version: '11'
+          mvn-toolchain-id: 'Temurin 11'
+          mvn-toolchain-vendor: 'openjdk' # see ../../pom.xml
+          server-id: 'sonatype-oss-repository-hosting' # see https://github.com/microbean/microbean-parent/blob/master/pom.xml#L38
+          server-password: 'SONATYPE_OSSRH_PASSWORD'
+          server-username: 'SONATYPE_OSSRH_USERNAME'
+      - id: 'download-nexus-staging'
+        name: 'Step: Download Nexus Staging Directory'
+        uses: 'actions/download-artifact@v3'
+        with:
+          name: 'nexus-staging'
+          path: 'target/nexus-staging/'
+      - id: 'mvn-nexus-staging-rc-open'
+        name: 'Step: Maven Nexus Staging: Open Staging Repository'
+        env:
+          MVN_DEBUG: ${{ inputs.mvnDebug && '-X' || '' }}
+          SONATYPE_OSSRH_PASSWORD: '${{ secrets.SONATYPE_OSSRH_PASSWORD }}'
+          SONATYPE_OSSRH_STAGING_PROFILE_ID: '${{ vars.SONATYPE_OSSRH_STAGING_PROFILE_ID }}'
+          SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
+        run: |
+          mvn ${MVN_DEBUG} -e --batch-mode nexus-staging:rc-open -DstagingProfileId="${SONATYPE_OSSRH_STAGING_PROFILE_ID}" -DopenedRepositoryMessageFormat="SONATYPE_OSSRH_STAGING_REPOSITORY_ID=%s" | awk '/SONATYPE_OSSRH_STAGING_REPOSITORY_ID/ { print $2 }' >> "${GITHUB_ENV}"
   job-mvn-nexus-staging-deploy-staged:
     if: 'inputs.dryRun != true'
     name: 'Job: Maven Nexus Staging: Deploy Staged'
-    needs: 'job-mvn-release-perform'
+    needs: 'job-mvn-nexus-staging-open'
     permissions:
       contents: 'read'
     runs-on: 'ubuntu-latest'
@@ -178,7 +222,8 @@ jobs:
           SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
         run: |
           ls -alR
-          mvn ${MVN_DEBUG} -e --batch-mode nexus-staging:deploy-staged -DskipStagingRepositoryClose=true
+          echo "repo id: ${SONATYPE_OSSRH_STAGING_PROFILE_ID}"
+          mvn ${MVN_DEBUG} -e --batch-mode nexus-staging:deploy-staged -DstagingRepositoryId="${SONATYPE_OSSRH_STAGING_REPOSITORY_ID}" -DskipStagingRepositoryClose=true
   job-mvn-nexus-staging-close:
     if: 'inputs.dryRun != true'
     name: 'Job: Maven Nexus Staging: Close'
