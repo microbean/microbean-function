@@ -116,7 +116,7 @@ jobs:
         run: |
           git config --global user.email 'ci@microbean.org'
           git config --global user.name 'microbean'
-          mvn ${MVN_DEBUG} -e --batch-mode release:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site" -Darguments="-e -DskipRemoteStaging=true -DskipTests=true"
+          mvn ${MVN_DEBUG} -e --batch-mode release:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site" -Darguments="-e -DskipStaging=true -DskipTests=true"
       - id: 'upload-nexus-staging'
         if: 'inputs.dryRun != true'
         name: 'Step: Upload Nexus Staging Directory'
@@ -125,7 +125,7 @@ jobs:
           if-no-files-found: 'error' # for now
           name: 'nexus-staging'
           path: |
-            target/checkout/target/nexus-staging/staging/${{ vars.SONATYPE_OSSRH_STAGING_PROFILE_ID }}/
+            target/checkout/target/nexus-staging/
       - id: 'upload-site'
         if: 'inputs.dryRun != true'
         name: 'Step: Upload Site Directory'
@@ -219,7 +219,7 @@ jobs:
           SONATYPE_OSSRH_STAGING_REPOSITORY_ID: '${{ needs.job-mvn-nexus-staging-open.outputs.repositoryId }}'
         run: |
           ls -alR
-          echo "repo id: ${SONATYPE_OSSRH_STAGING_PROFILE_ID}"
+          echo "repo id: ${SONATYPE_OSSRH_STAGING_REPOSITORY_ID}"
           mvn ${MVN_DEBUG} -e --batch-mode nexus-staging:deploy-staged -DstagingRepositoryId="${SONATYPE_OSSRH_STAGING_REPOSITORY_ID}" -DskipStagingRepositoryClose=true
   job-mvn-nexus-staging-close:
     if: 'inputs.dryRun != true'
