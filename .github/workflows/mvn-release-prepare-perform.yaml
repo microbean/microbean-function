@@ -116,7 +116,7 @@ jobs:
         run: |
           git config --global user.email 'ci@microbean.org'
           git config --global user.name 'microbean'
-          mvn ${MVN_DEBUG} -e --batch-mode release:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site" -Darguments="-e -DskipStaging=true -DskipTests=true"
+          mvn ${MVN_DEBUG} -e --batch-mode release:perform -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site" -Darguments="-e -DskipStaging=true -DskipRemoteStaging=true -DskipTests=true"
       - id: 'upload-nexus-staging'
         if: 'inputs.dryRun != true'
         name: 'Step: Upload Nexus Staging Directory'
