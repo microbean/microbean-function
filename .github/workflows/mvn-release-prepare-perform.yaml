@@ -139,6 +139,8 @@ jobs:
     if: 'inputs.dryRun != true'
     name: 'Job: Maven Nexus Staging: Open Staging Repository'
     needs: 'job-mvn-release-perform'
+    outputs:
+      repositoryId: '${{ steps.mvn-nexus-staging-rc-open.outputs.sonatypeOssRhStagingRepositoryId }}'
     permissions:
       contents: 'read'
     runs-on: 'ubuntu-latest'
@@ -178,7 +180,7 @@ jobs:
           SONATYPE_OSSRH_STAGING_PROFILE_ID: '${{ vars.SONATYPE_OSSRH_STAGING_PROFILE_ID }}'
           SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
         run: |
-          mvn ${MVN_DEBUG} -e --batch-mode nexus-staging:rc-open -DstagingProfileId="${SONATYPE_OSSRH_STAGING_PROFILE_ID}" -DopenedRepositoryMessageFormat="SONATYPE_OSSRH_STAGING_REPOSITORY_ID=%s" | awk '/SONATYPE_OSSRH_STAGING_REPOSITORY_ID/ { print $2 }' >> "${GITHUB_ENV}"
+          mvn ${MVN_DEBUG} -e --batch-mode nexus-staging:rc-open -DstagingProfileId="${SONATYPE_OSSRH_STAGING_PROFILE_ID}" -DopenedRepositoryMessageFormat="sonatypeOssRhStagingRepositoryId=%s" | awk '/sonatypeOssRhStagingRepositoryId/ { print $2 }' >> "${GITHUB_OUTPUT}"
   job-mvn-nexus-staging-deploy-staged:
     if: 'inputs.dryRun != true'
     name: 'Job: Maven Nexus Staging: Deploy Staged'
@@ -220,10 +222,11 @@ jobs:
           MVN_DEBUG: ${{ inputs.mvnDebug && '-X' || '' }}
           SONATYPE_OSSRH_PASSWORD: '${{ secrets.SONATYPE_OSSRH_PASSWORD }}'
           SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
+          SONATYPE_OSSRH_STAGING_REPOSITORY_ID: '${{ needs.job-mvn-nexus-staging-open.outputs.repositoryId }}'
         run: |
           ls -alR
           echo "repo id: ${SONATYPE_OSSRH_STAGING_PROFILE_ID}"
-          mvn ${MVN_DEBUG} -e --batch-mode nexus-staging:deploy-staged -DstagingRepositoryId="${SONATYPE_OSSRH_STAGING_REPOSITORY_ID}" -DskipStagingRepositoryClose=true
+          mvn ${MVN_DEBUG} -e --batch-mode nexus-staging:deploy-staged -DstagingRepositoryId="${SONATYPE_OSSRH_STAGING_REPOSITORY_ID}" -DskipStagingRepositoryClose=true -DaltStagingDirectory="target/nexus-staging"
   job-mvn-nexus-staging-close:
     if: 'inputs.dryRun != true'
     name: 'Job: Maven Nexus Staging: Close'
