@@ -125,7 +125,7 @@ jobs:
           if-no-files-found: 'error' # for now
           name: 'nexus-staging'
           path: |
-            target/checkout/target/nexus-staging/
+            target/checkout/target/nexus-staging/staging/${{ vars.SONATYPE_OSSRH_STAGING_PROFILE_ID }}/
       - id: 'upload-site'
         if: 'inputs.dryRun != true'
         name: 'Step: Upload Site Directory'
@@ -166,12 +166,6 @@ jobs:
           server-id: 'sonatype-oss-repository-hosting' # see https://github.com/microbean/microbean-parent/blob/master/pom.xml#L38
           server-password: 'SONATYPE_OSSRH_PASSWORD'
           server-username: 'SONATYPE_OSSRH_USERNAME'
-      - id: 'download-nexus-staging'
-        name: 'Step: Download Nexus Staging Directory'
-        uses: 'actions/download-artifact@v3'
-        with:
-          name: 'nexus-staging'
-          path: 'target/nexus-staging/'
       - id: 'mvn-nexus-staging-rc-open'
         name: 'Step: Maven Nexus Staging: Open Staging Repository'
         env:
@@ -261,7 +255,7 @@ jobs:
         uses: 'actions/download-artifact@v3'
         with:
           name: 'nexus-staging'
-          path: 'target/nexus-staging/'
+          path: 'target/nexus-staging/staging'
       - id: 'mvn-nexus-staging-close'
         name: 'Step: Maven Nexus Staging: Close'
         env:
