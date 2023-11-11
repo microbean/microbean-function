@@ -125,7 +125,7 @@ jobs:
           if-no-files-found: 'error' # for now
           name: 'nexus-staging'
           path: |
-            target/checkout/target/nexus-staging/staging
+            target/checkout/target/nexus-staging/
       - id: 'upload-site'
         if: 'inputs.dryRun != true'
         name: 'Step: Upload Site Directory'
@@ -169,7 +169,7 @@ jobs:
         uses: 'actions/download-artifact@v3'
         with:
           name: 'nexus-staging'
-          path: 'target/nexus-staging/staging'
+          path: 'target/nexus-staging/'
       - id: 'mvn-nexus-staging-deploy-staged'
         name: 'Step: Maven Nexus Staging: Deploy Staged'
         env:
@@ -213,7 +213,7 @@ jobs:
         uses: 'actions/download-artifact@v3'
         with:
           name: 'nexus-staging'
-          path: 'target/nexus-staging/staging'
+          path: 'target/nexus-staging/'
       - id: 'mvn-nexus-staging-close'
         name: 'Step: Maven Nexus Staging: Close'
         env:
@@ -257,7 +257,7 @@ jobs:
         uses: 'actions/download-artifact@v3'
         with:
           name: 'nexus-staging'
-          path: 'target/nexus-staging/staging'
+          path: 'target/nexus-staging/'
       - id: 'mvn-nexus-staging-release'
         name: 'Step: Maven Nexus Staging: Release'
         env:
