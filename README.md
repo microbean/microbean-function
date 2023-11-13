@@ -29,7 +29,7 @@ dependency:
   <groupId>org.microbean</groupId>
   <artifactId>microbean-function</artifactId>
   <!-- Always check https://search.maven.org/artifact/org.microbean/microbean-function for up-to-date available versions. -->
-  <version>0.0.47</version>
+  <version>0.0.48</version>
 </dependency>
 ```
 
