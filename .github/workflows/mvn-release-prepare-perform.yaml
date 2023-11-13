@@ -65,12 +65,16 @@ jobs:
           SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
         run: >
           git config --global user.email 'ci@microbean.org'
-          
+
           git config --global user.name 'microbean'
 
           mvn --batch-mode ${MVN_DEBUG} --errors release:prepare
           -DdryRun="${DRY_RUN}"
           -Dscm.url="${SCM_GIT_HTTPS_URL}"
+
+          echo "Prepared $(grep '^scm.tag=' release.properties | cut -f 2 -d =)" >> "${GITHUB_STEP_SUMMARY}"
+
+          echo "scm_tag=$(grep '^scm.tag=' release.properties | cut -f 2 -d =)" >> "${GITHUB_OUTPUT}"
 
           mvn --batch-mode ${MVN_DEBUG} --errors release:perform
           -Darguments="-DstagingProfileId=${SONATYPE_OSSRH_STAGING_PROFILE_ID} -Dscmpublish.pubScmUrl=${SCM_GIT_HTTPS_URL} -DskipTests"
