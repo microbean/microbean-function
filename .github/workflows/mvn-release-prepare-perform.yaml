@@ -57,12 +57,23 @@ jobs:
           DRY_RUN: '${{ inputs.dryRun }}'
           GIT_ASKPASS: '${{ runner.temp }}/.askpass'
           GPG_PASSPHRASE: '${{ secrets.GPG_PASSPHRASE }}'
-          MVN_DEBUG: ${{ inputs.mvnDebug && '-X' || '' }}
+          MVN_DEBUG: ${{ inputs.mvnDebug && '--debug' || '' }}
           PUSH_TOKEN : '${{ secrets.PUSH_TOKEN }}' # critical; see ${GIT_ASKPASS} file
           SCM_GIT_HTTPS_URL: 'scm:git:${{ github.server_url }}/${{ github.repository }}.git'
           SONATYPE_OSSRH_PASSWORD: '${{ secrets.SONATYPE_OSSRH_PASSWORD }}'
+          SONATYPE_OSSRH_STAGING_PROFILE_ID: '${{ vars.SONATYPE_OSSRH_STAGING_PROFILE_ID }}'
           SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
-        run: |
+        run: >
           git config --global user.email 'ci@microbean.org'
+          
           git config --global user.name 'microbean'
-          mvn ${MVN_DEBUG} -e --batch-mode release:prepare release:perform -Darguments="-Dscmpublish.pubScmUrl=${SCM_GIT_HTTPS_URL}" -DdryRun="${DRY_RUN}" -Dgoals="deploy,post-site,scm-publish:publish-scm" -Dscm.url="${SCM_GIT_HTTPS_URL}"
+
+          mvn --batch-mode ${MVN_DEBUG} --errors release:prepare
+          -DdryRun="${DRY_RUN}"
+          -Dscm.url="${SCM_GIT_HTTPS_URL}"
+
+          mvn --batch-mode ${MVN_DEBUG} --errors release:perform
+          -Darguments="-DstagingProfileId=${SONATYPE_OSSRH_STAGING_PROFILE_ID} -Dscmpublish.pubScmUrl=${SCM_GIT_HTTPS_URL} -DskipTests"
+          -DdryRun="${DRY_RUN}"
+          -Dgoals="verify,post-site,scm-publish:publish-scm,deploy"
+          -Dscm.url="${SCM_GIT_HTTPS_URL}"
