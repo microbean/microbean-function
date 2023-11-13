@@ -19,7 +19,7 @@ jobs:
     runs-on: 'ubuntu-latest'
     steps:
       - id: 'checkout'
-        name: 'Step: Checkout'
+        name: 'Step: Checkout Project'
         uses: 'actions/checkout@v4'
         with:
           fetch-depth: 1
@@ -52,7 +52,7 @@ jobs:
         run: |
           echo 'pinentry-mode loopback' >> ~/.gnupg/gpg.conf
       - id: 'mvn-release-prepare'
-        name: 'Step: Maven Release: Prepare'
+        name: 'Step: Maven Release: Prepare, Perform and Publish Site'
         env:
           DRY_RUN: '${{ inputs.dryRun }}'
           GIT_ASKPASS: '${{ runner.temp }}/.askpass'
