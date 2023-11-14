@@ -6,14 +6,16 @@ on:
 jobs:
   job-mvn-verify:
     name: 'Job: Maven Verify'
-    permissions: {}
+    permissions:
+      contents: 'read'
     runs-on: 'ubuntu-latest'
     steps:
       - id: 'checkout'
         name: 'Step: Checkout'
         uses: 'actions/checkout@v4'
         with:
-          fetch-depth: 0
+          fetch-depth: 1
+          persist-credentials: false
       - id: 'setup-java'
         name: 'Step: Set Up Java and Maven'
         uses: 'actions/setup-java@v3'
@@ -25,4 +27,4 @@ jobs:
           mvn-toolchain-vendor: 'openjdk' # see ../../pom.xml
       - id: 'mvn-verify'
         name: 'Step: Maven Verify'
-        run: 'mvn -B -Dorg.slf4j.simpleLogger.defaultLogLevel=info verify'
+        run: 'mvn --batch-mode --color never --errors --no-transfer-progress -Dorg.slf4j.simpleLogger.defaultLogLevel=info verify'
