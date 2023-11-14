@@ -87,8 +87,15 @@ jobs:
 
           set +e
 
-          mvn --batch-mode ${MVN_DEBUG} --errors ${MVN_TRANSFER_LOGGING} release:perform
+          { mvn --batch-mode ${MVN_DEBUG} --errors ${MVN_TRANSFER_LOGGING} release:perform
           -Darguments="${MVN_TRANSFER_LOGGING} -Dscmpublish.dryRun=${DRY_RUN} -Dscmpublish.pubScmUrl=${SCM_GIT_HTTPS_URL} -DskipTests -DstagingProfileId=${SONATYPE_OSSRH_STAGING_PROFILE_ID}"
           -DdryRun="${DRY_RUN}"
           -Dgoals="verify,post-site,scm-publish:publish-scm,deploy"
           -Dscm.url="${SCM_GIT_HTTPS_URL}"
+          | tee /dev/fd/3
+          | { grep --invert-match --silent 'StagingDTO' && cat /dev/null }
+          } 3>&1
+          &&
+          echo "Released ${scm_tag}" >> "${GITHUB_STEP_SUMMARY}"
+          ||
+          { echo "Encountered Maven Central bug; may have released ${scm_tag} anyway" >> "${GITHUB_STEP_SUMMARY}"; exit 1; }  
