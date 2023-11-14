@@ -70,21 +70,31 @@ jobs:
           SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
         shell: 'bash -e {0}'
         run: >
+          echo "::gitconfig::Configuring git identity"
+          
           git config --global user.email 'ci@microbean.org'
 
           git config --global user.name 'microbean'
 
+          echo "::endgitconfig::"
+
+          echo "::mvnprepare::Running mvn prepare"
+          
           mvn --batch-mode ${MVN_DEBUG} --errors ${MVN_TRANSFER_LOGGING} release:prepare
           -DdryRun="${DRY_RUN}"
           -Darguments="${MVN_TRANSFER_LOGGING}"
           -Dscm.url="${SCM_GIT_HTTPS_URL}"
-
+          
           scm_tag="$(grep '^scm.tag=' release.properties | cut -f 2 -d =)"
 
           echo "Prepared ${scm_tag}" >> "${GITHUB_STEP_SUMMARY}"
 
           echo "scm_tag=${scm_tag}" >> "${GITHUB_OUTPUT}"
 
+          echo "::endmvnprepare"
+
+          echo "::mvnperform::Running mvn perform"
+          
           set +e
 
           {
@@ -103,6 +113,8 @@ jobs:
 
           exit_codes=(${PIPESTATUS[@]})
 
+          echo "::endmvnperform"
+          
           set -e
 
           if [ "${exit_codes[2]}" -ne 0 ] ; then
