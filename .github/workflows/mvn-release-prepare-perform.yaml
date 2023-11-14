@@ -92,6 +92,4 @@ jobs:
           -DdryRun="${DRY_RUN}"
           -Dgoals="verify,post-site,scm-publish:publish-scm,deploy"
           -Dscm.url="${SCM_GIT_HTTPS_URL}"
-          | tee /dev/fd/3
-          | grep --invert-match --silent 'StagingDTO'
-          } 3>&1
+          }
