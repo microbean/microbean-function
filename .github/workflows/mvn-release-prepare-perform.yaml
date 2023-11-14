@@ -95,7 +95,3 @@ jobs:
           | tee /dev/fd/3
           | grep --invert-match --silent 'StagingDTO' && cat > /dev/null
           } 3>&1
-          &&
-          echo "Released ${scm_tag}" >> "${GITHUB_STEP_SUMMARY}"
-          ||
-          { echo "Encountered Maven Central bug; may have released ${scm_tag} anyway" >> "${GITHUB_STEP_SUMMARY}"; exit 1; }  
