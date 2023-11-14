@@ -70,15 +70,15 @@ jobs:
           SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
         shell: 'bash -e {0}'
         run: >
-          echo "::gitconfig::Configuring git identity"
+          echo "::group::Configuring git identity"
           
           git config --global user.email 'ci@microbean.org'
 
           git config --global user.name 'microbean'
 
-          echo "::endgitconfig::"
+          echo "::endgroup::"
 
-          echo "::mvnprepare::Running mvn prepare"
+          echo "::group::Running mvn prepare"
           
           mvn --batch-mode ${MVN_DEBUG} --errors ${MVN_TRANSFER_LOGGING} release:prepare
           -DdryRun="${DRY_RUN}"
@@ -91,9 +91,9 @@ jobs:
 
           echo "scm_tag=${scm_tag}" >> "${GITHUB_OUTPUT}"
 
-          echo "::endmvnprepare"
+          echo "::endgroup::"
 
-          echo "::mvnperform::Running mvn perform"
+          echo "::group::Running mvn perform"
           
           set +e
 
@@ -113,7 +113,7 @@ jobs:
 
           exit_codes=(${PIPESTATUS[@]})
 
-          echo "::endmvnperform"
+          echo "::endgroup"
           
           set -e
 
