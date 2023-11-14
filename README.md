@@ -1,6 +1,6 @@
 # microBean™ Function
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.microbean/microbean-function/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.microbean/microbean-function)
+[![Maven Central](https://img.shields.io/maven-central/v/org.microbean/microbean-function.svg?label=Maven%20Central)](https://search.maven.org/artifact/org.microbean/microbean-function)
 
 The microBean™ Function project provides classes and interfaces related to Java's particular flavor of functional
 programming.
@@ -29,7 +29,7 @@ dependency:
   <groupId>org.microbean</groupId>
   <artifactId>microbean-function</artifactId>
   <!-- Always check https://search.maven.org/artifact/org.microbean/microbean-function for up-to-date available versions. -->
-  <version>0.0.67</version>
+  <version>0.0.69</version>
 </dependency>
 ```
 
