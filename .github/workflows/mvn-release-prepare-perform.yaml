@@ -70,13 +70,9 @@ jobs:
           SONATYPE_OSSRH_USERNAME: '${{ secrets.SONATYPE_OSSRH_USERNAME }}'
         shell: 'bash -e {0}'
         run: >
-          echo "::group::Configuring git identity"
-          
           git config --global user.email 'ci@microbean.org'
 
           git config --global user.name 'microbean'
-
-          echo "::endgroup::"
 
           echo "::group::Running mvn prepare"
           
