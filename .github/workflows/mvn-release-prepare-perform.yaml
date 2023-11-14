@@ -14,6 +14,7 @@ on:
       mvnTransferLogging:
         default: false
         description: 'Log Maven artifact transfers?'
+        type: 'boolean'
 jobs:
   job-mvn-release-prepare-perform:
     name: 'Job: Maven Release: Prepare and Perform'
@@ -22,7 +23,7 @@ jobs:
     runs-on: 'ubuntu-latest'
     steps:
       - id: 'checkout'
-        name: 'Step: Checkout Project'
+        name: 'Step: Check Out Project'
         uses: 'actions/checkout@v4'
         with:
           fetch-depth: 1
