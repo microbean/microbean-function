@@ -93,5 +93,5 @@ jobs:
           -Dgoals="verify,post-site,scm-publish:publish-scm,deploy"
           -Dscm.url="${SCM_GIT_HTTPS_URL}"
           | tee /dev/fd/3
-          | grep --invert-match --silent 'StagingDTO' && cat > /dev/null
+          | grep --invert-match --silent 'StagingDTO' || cat > /dev/null
           } 3>&1
