@@ -100,3 +100,15 @@ jobs:
           ;
           }
           3>&1
+
+          exit_codes=(${PIPESTATUS[@]})
+
+          set -e
+
+          if [ "${exit_codes[2]}" -ne 0 ] ; then
+            exit "${exit_codes[0]}"
+          elif [ "${exit_codes[0]}" -eq 0 ] ; then
+            echo "Released ${scm_tag} successfully" >> "${GITHUB_STEP_SUMMARY}"
+          fi
+
+          exit "${exit_codes[0]}"
