@@ -113,7 +113,7 @@ jobs:
 
           exit_codes=(${PIPESTATUS[@]})
 
-          echo "::endgroup"
+          echo "::endgroup::"
           
           set -e
 
