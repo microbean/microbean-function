@@ -112,7 +112,7 @@ jobs:
             exit 0;
           elif [ "${exit_codes[0]}" -eq 0 ] ; then
             # mvn succeeded and grep "succeeded" (did not find com.sonatype.nexus.staging.api.dto.StagingProfileRepositoryDTO)
-            echo "Released ${scm_tag} successfully" >> "${GITHB_STEP_SUMMARY}";
+            echo "Released ${scm_tag} successfully" >> "${GITHUB_STEP_SUMMARY}";
           fi
 
           exit "${exit_codes[0]}"
