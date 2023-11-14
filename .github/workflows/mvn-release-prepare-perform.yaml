@@ -106,9 +106,13 @@ jobs:
           set -e
 
           if [ "${exit_codes[2]}" -ne 0 ] ; then
-            exit "${exit_codes[0]}"
+            # grep "failed" (found com.sonatype.nexus.staging.api.dto.StagingProfileRepositoryDTO) and mvn failed
+            echo "Released ${scm_tag} successfully, but verify that the staging repository was successfully released" >> "${GITHUB_STEP_SUMMARY}";
+            # Treat this as a successful run
+            exit 0;
           elif [ "${exit_codes[0]}" -eq 0 ] ; then
-            echo "Released ${scm_tag} successfully" >> "${GITHUB_STEP_SUMMARY}"
+            # mvn succeeded and grep "succeeded" (did not find com.sonatype.nexus.staging.api.dto.StagingProfileRepositoryDTO)
+            echo "Released ${scm_tag} successfully" >> "${GITHB_STEP_SUMMARY}";
           fi
 
           exit "${exit_codes[0]}"
