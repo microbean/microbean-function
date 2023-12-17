@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import static java.lang.invoke.MethodHandles.empty;
 import static java.lang.invoke.MethodHandles.filterArguments;
+import static java.lang.invoke.MethodHandles.foldArguments;
 import static java.lang.invoke.MethodHandles.identity;
 import static java.lang.invoke.MethodHandles.insertArguments;
 import static java.lang.invoke.MethodHandles.lookup;
@@ -32,23 +33,37 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 
 final class TestMethodHandles {
 
+  private static final Lookup lookup = lookup();
+  
+  private static final MethodHandle receiver0;
+
+  private static final MethodHandle unboundToString;
+
+  private static final MethodHandle unboundSupplierGet;
+
+  static {
+    try {
+      unboundToString = lookup.findVirtual(Object.class, "toString", methodType(String.class));
+      unboundSupplierGet = lookup.findVirtual(Supplier.class, "get", methodType(Object.class));
+      receiver0 = lookup.findStatic(TestMethodHandles.class, "receiver0", methodType(Object.class, Object.class, Supplier.class));
+    } catch (IllegalAccessException | NoSuchMethodException e) {
+      throw new ExceptionInInitializerError(e);
+    }
+  }
+  
   private TestMethodHandles() {
     super();
   }
 
   @Test
-  final void testBindingToSupplier() throws Throwable {
-    final Lookup lookup = lookup();
-
-    final MethodHandle unboundToString = lookup.findVirtual(Object.class, "toString", methodType(String.class));
-    assertEquals(1, unboundToString.type().parameterCount()); // 1 for the receiver
-    assertSame(Object.class, unboundToString.type().parameterType(0));
-    assertSame(String.class, unboundToString.type().returnType());
-
+  final void testOrdinaryBinding() throws Throwable {
     final Integer three = Integer.valueOf(3);
     final MethodHandle threeToString = unboundToString.bindTo(three);
     assertEquals("3", (String)threeToString.invokeExact());
-
+  }
+  
+  @Test
+  final void testBindingToSupplier0() throws Throwable {
     final Supplier<?> s = new Supplier<>() {
         private int x = -1;
         @Override
@@ -57,26 +72,42 @@ final class TestMethodHandles {
         }
       };
 
-    final MethodHandle filter =
-      insertArguments(lookup.findStatic(TestMethodHandles.class,
-                                        "receiver",
-                                        methodType(Object.class,
-                                                   Object.class,
-                                                   Supplier.class)),
-                      1,
-                      s);
+    // Turn receiver(Object, Supplier) into simply receiver(Object), closing over s
+    final MethodHandle filter = insertArguments(receiver0, 1, s);
     assertEquals(1, filter.type().parameterCount());
+    assertSame(Object.class, filter.type().parameterType(0));
 
-    final MethodHandle toStringBoundToSupplier = filterArguments(unboundToString, 0, filter).bindTo(null); // bind is totally arbitrary
+    // Now we can use the filter to replace the 0th argument (receiver) to unboundToString.  First we take the
+    // unboundToString method handle, which, because it is unbound, accepts one parameter (the receiver; toString() is a
+    // virtual method). We filter its zeroth argument (the receiver) to be the return value of the filter method handle
+    // we just built. This effectively "binds" toString() to s.get() on every invocation.
+    //
+    // We dummy bind the unboundToString method handle to null. The filter will replace that zeroth argument with its
+    // return value (Supplier#get()).
+    final MethodHandle toStringBoundToSupplier = filterArguments(unboundToString, 0, filter)
+      .bindTo(null); // arbitrary; will be replaced by return value of filter
     assertEquals("0", (String)toStringBoundToSupplier.invokeExact());
     assertEquals("1", (String)toStringBoundToSupplier.invokeExact());
     
   }
 
-  private static final Object receiver(final Object ignored, final Supplier<?> s) {
+  @Test
+  final void testBindingToSupplier1() throws Throwable {
+    final Supplier<?> s = new Supplier<>() {
+        private int x = -1;
+        @Override
+        public final Integer get() {
+          return ++x;
+        }
+      };
+
+    final MethodHandle mh = foldArguments(unboundToString, unboundSupplierGet.bindTo(s));
+    assertEquals("0", (String)mh.invokeExact());
+    assertEquals("1", (String)mh.invokeExact());
+  }
+
+  private static final Object receiver0(final Object ignored, final Supplier<?> s) {
     return s.get();
   }
 
-      
-  
 }

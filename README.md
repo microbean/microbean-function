@@ -16,7 +16,7 @@ changes, regardless of project version and without notice.**
 
 # Requirements
 
-microBean™ Function requires a Java runtime of version 17 or higher.
+microBean™ Function requires a Java runtime of version 11 or higher.
 
 # Installation
 
@@ -29,7 +29,7 @@ dependency:
   <groupId>org.microbean</groupId>
   <artifactId>microbean-function</artifactId>
   <!-- Always check https://search.maven.org/artifact/org.microbean/microbean-function for up-to-date available versions. -->
-  <version>0.0.69</version>
+  <version>0.0.70</version>
 </dependency>
 ```
 
